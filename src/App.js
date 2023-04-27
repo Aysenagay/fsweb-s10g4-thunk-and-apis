@@ -3,17 +3,27 @@ import { Switch, Route, NavLink } from "react-router-dom";
 import Item from "./components/Item";
 import FavItem from "./components/FavItem";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAnother, addFav } from "./actions";
+import { fetchAnother, addFav, getFavsFromLocalStorage } from "./actions";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   const loading = useSelector((store) => store.loading);
   const current = useSelector((store) => store.current);
   const favs = useSelector((store) => store.favs);
   const dispatch = useDispatch();
+  const bildirim = () => toast("FAVORİLERE EKLENDİ");
 
-  /*function addToFavs() {
+  function addToFavs() {
     dispatch(addFav());
-  }*/
+    dispatch(fetchAnother());
+    bildirim();
+  }
+
+  useEffect(() => {
+    dispatch(fetchAnother());
+    dispatch(getFavsFromLocalStorage());
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAnother());
@@ -54,9 +64,7 @@ export default function App() {
               Başka bir tane
             </button>
             <button
-              onClick={() => {
-                dispatch(addFav());
-              }}
+              onClick={addToFavs}
               className="select-none px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white"
             >
               Favorilere ekle
@@ -68,7 +76,7 @@ export default function App() {
           <div className="flex flex-col gap-3">
             {favs.length > 0 ? (
               favs.map((item) => (
-                <FavItem key={item.key} id={item.key} title={item.message} />
+                <FavItem key={item.id} id={item.id} title={item.message} />
               ))
             ) : (
               <div className="bg-white p-6 text-center shadow-md">
@@ -78,6 +86,18 @@ export default function App() {
           </div>
         </Route>
       </Switch>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }
